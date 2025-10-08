@@ -1684,8 +1684,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       createLead,
       updateLead,
       deleteLead,
-      // project overviews
-      projectOverviews,
       getProjectOverview,
       saveProjectOverview,
       updateProjectOverview,

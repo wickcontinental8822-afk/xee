@@ -77,14 +77,23 @@ export function StorageManager({ projectId }: StorageManagerProps) {
   const uniqueUploaders = [...new Set(getProjectFiles().map(f => f.uploader_name))];
   const uniqueFileTypes = [...new Set(getProjectFiles().map(f => f.file_type))];
 
-  const handleFileUpload = (fileList: FileList | null, targetProjectId: string) => {
+  const handleFileUpload = async (fileList: FileList | null, targetProjectId: string) => {
     if (!fileList) return;
-    if (!targetProjectId) return;
+    if (!targetProjectId) {
+      alert('No project selected. Please select a project first.');
+      return;
+    }
 
-    Array.from(fileList).forEach(file => {
-      // Prefer direct project-level upload to Google Drive
-      uploadFileToProject(targetProjectId, file, user?.name || 'Unknown');
-    });
+    const files = Array.from(fileList);
+
+    for (const file of files) {
+      try {
+        await uploadFileToProject(targetProjectId, file, user?.name || 'Unknown');
+      } catch (error) {
+        console.error('File upload failed:', error);
+        alert(`Failed to upload ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
   };
 
   const getFileLocation = (file: any) => {

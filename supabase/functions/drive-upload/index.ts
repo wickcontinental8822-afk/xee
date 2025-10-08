@@ -1,8 +1,11 @@
-// Deno runtime (Supabase Edge Function)
-// Uploads a file to Google Drive using a Service Account
-
-import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { JWT } from 'npm:google-auth-library@9.14.1';
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
 
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
 const DRIVE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
@@ -29,9 +32,19 @@ async function ensureAnyoneRead(fileId: string, accessToken: string) {
   });
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+    return new Response('Method Not Allowed', {
+      status: 405,
+      headers: corsHeaders,
+    });
   }
 
   try {
@@ -75,7 +88,10 @@ serve(async (req) => {
 
     if (!uploadRes.ok) {
       const txt = await uploadRes.text();
-      return new Response(JSON.stringify({ error: `Drive upload failed: ${uploadRes.status} ${txt}` }), { status: 500 });
+      return new Response(JSON.stringify({ error: `Drive upload failed: ${uploadRes.status} ${txt}` }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const uploaded = await uploadRes.json();
@@ -87,11 +103,14 @@ serve(async (req) => {
     const webViewLink = `https://drive.google.com/file/d/${fileId}/view`;
 
     return new Response(JSON.stringify({ fileId, webViewLink }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), { status: 500 });
+    return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
 

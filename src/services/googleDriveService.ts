@@ -41,8 +41,8 @@ class GoogleDriveService {
    * Upload a file to Google Drive
    */
   async uploadFile(
-    file: File, 
-    projectId: string, 
+    file: File,
+    projectId: string,
     stageId?: string
   ): Promise<UploadResult> {
     if (!this.isInitialized) {
@@ -69,27 +69,6 @@ class GoogleDriveService {
         };
       }
 
-      // TEMPORARY: Simulate upload until Edge Functions are deployed
-      // TODO: Replace with actual Edge Function call
-      console.log('TEMPORARY: Simulating Google Drive upload');
-      
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate mock file ID and link
-      const mockFileId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const mockWebViewLink = `https://drive.google.com/file/d/${mockFileId}/view`;
-      
-      console.log(`TEMPORARY: File uploaded to Google Drive: ${file.name}`);
-      
-      return {
-        success: true,
-        fileId: mockFileId,
-        webViewLink: mockWebViewLink
-      };
-
-      // TODO: Uncomment when Edge Functions are deployed
-      /*
       // Call Supabase Edge Function 'drive-upload'
       if (!supabase) throw new Error('Supabase not configured');
 
@@ -112,7 +91,6 @@ class GoogleDriveService {
         fileId: data.fileId as string,
         webViewLink: data.webViewLink as string
       };
-      */
     } catch (error) {
       console.error('Error uploading file to Google Drive:', error);
       return {
