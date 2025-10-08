@@ -1662,6 +1662,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateStageApproval,
       uploadFile,
       uploadFileFromInput,
+      uploadFileToProject,
       uploadBrochureImage,
       updateStageProgress,
       scheduleMeeting,
